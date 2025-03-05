@@ -1,15 +1,4 @@
-const {
-    default: makeWASocket,
-    useMultiFileAuthState,
-    DisconnectReason,
-    getDevice,
-    fetchLatestBaileysVersion,
-    jidNormalizedUser,
-    getContentType,
-    generateWAMessageFromContent,
-    prepareWAMessageMedia,
-    proto
-} = require('@whiskeysockets/baileys')
+const { default: makeWASocket, useMultiFileAuthState, DisconnectReason, jidNormalizedUser, getContentType, fetchLatestBaileysVersion, generateWAMessageFromContent, prepareWAMessageMedia ,generateWAMessageContent,proto, Browsers } = require('@whiskeysockets/baileys');
 const fs = require('fs')
 const P = require('pino')
 const config = require('./config')
