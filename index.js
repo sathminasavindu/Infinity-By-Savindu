@@ -54,34 +54,30 @@ if (!fs.existsSync(__dirname + '/auth_info_baileys/creds.json')) {
       })
     }
   }
+
 // <<==========PORTS===========>>
 const express = require("express");
 const app = express();
 const port = process.env.PORT || 8000;
 //====================================
-async function connectToWA() {
-    const {
-        version,
-        isLatest
-    } = await fetchLatestBaileysVersion()
-    console.log(`using WA v${version.join('.')}, isLatest: ${isLatest}`)
-    const {
-        state,
-        saveCreds
-    } = await useMultiFileAuthState(__dirname + '/auth_info_baileys/')
-    const conn = makeWASocket({
-        logger: P({
-            level: "fatal"
-        }).child({
-            level: "fatal"
-        }),
-        printQRInTerminal: true,
-        generateHighQualityLinkPreview: true,
-        auth: state,
-        defaultQueryTimeoutMs: undefined,
-        msgRetryCounterCache
-    })
 
+
+    async function connectToWA() {
+    
+
+//------------------ setting input ---------------------//
+   
+    const { state, saveCreds } = await useMultiFileAuthState(__dirname + '/auth_info_baileys/');
+    var { version } = await fetchLatestBaileysVersion();
+    
+    const conn = makeWASocket({
+        logger: P({ level: 'silent' }),
+        printQRInTerminal: false,
+        browser: Browsers.macOS("Firefox"),
+        syncFullHistory: true,
+        auth: state,
+        version
+    });
     conn.ev.on('connection.update', async (update) => {
         const {
             connection,
