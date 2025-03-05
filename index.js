@@ -51,22 +51,34 @@ const port = process.env.PORT || 8000;
 //====================================
 
 
-    async function connectToWA() {
-    
-
-//------------------ setting input ---------------------//
-   
-    const { state, saveCreds } = await useMultiFileAuthState(__dirname + '/auth_info_baileys/');
-    var { version } = await fetchLatestBaileysVersion();
-    
+async function connectToWA() {
+    const { version, isLatest } = await fetchLatestBaileysVersion();
+    //console.log(`using WA v${version.join('.')}, isLatest: ${isLatest}`)
+    const {
+        state,
+        saveCreds
+    } = await useMultiFileAuthState(__dirname + '/auth_info_baileys/')
+	const store = makeInMemoryStore({ logger: P().child({ level: 'silent', stream: 'store' }) })
     const conn = makeWASocket({
-        logger: P({ level: 'silent' }),
-        printQRInTerminal: false,
-        browser: Browsers.macOS("Firefox"),
-        syncFullHistory: true,
-        auth: state,
-        version
-    });
+	    keepAliveIntervalMs: 50000,
+            logger: P({ level: 'fatal' }),
+            printQRInTerminal: true,
+            browser: ['MR-Kushan', 'safari', '1.0.0'],
+            fireInitQueries: false,
+            shouldSyncHistoryMessage: true,
+            downloadHistory: true,
+            syncFullHistory: true,
+            generateHighQualityLinkPreview: true,
+            auth: state,
+            version: version,
+            getMessage: async key => {
+                if (store) {
+                    const msg = await store.loadMessage(key.remoteJid, key.id, undefined);
+                    return msg.message || undefined;
+                }
+                return { conversation: 'An Error Occurred, Repeat Command!' };
+            }
+        });
     conn.ev.on('connection.update', async (update) => {
         const {
             connection,
